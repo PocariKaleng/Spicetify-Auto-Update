@@ -1,0 +1,146 @@
+/* Elaina Glass: local wallpaper, readable glass, no remote assets. */
+:root {
+  --elaina-dim: .38;
+  --elaina-glass: .52;
+  --elaina-blur: 3px;
+  --elaina-accent: #c4a5f5;
+  --elaina-border: rgba(228, 218, 255, .17);
+  --elaina-wallpaper: url("elaina-wallpaper.jpg");
+}
+body {
+  background: #161321 !important;
+  isolation: isolate;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(rgba(14, 10, 27, var(--elaina-dim)), rgba(14, 10, 27, var(--elaina-dim))), var(--elaina-wallpaper) 55% 40% / cover no-repeat;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(16, 11, 28, .23), transparent 55%), linear-gradient(0deg, rgba(14, 10, 27, .58), transparent 42%);
+}
+.Root__top-container,
+.Root__globalNav,
+.Root__nav-bar,
+.Root__now-playing-bar {
+  background: transparent !important;
+}
+.Root__globalNav { padding-inline: 12px; }
+.Root__main-view,
+.Root__right-sidebar-peek,
+.main-yourLibraryX-library {
+  border: 1px solid var(--elaina-border);
+  border-radius: 16px !important;
+  box-shadow: 0 12px 35px rgba(8, 5, 20, .22), inset 0 1px rgba(255, 255, 255, .055);
+}
+.Root__main-view {
+  background: rgba(20, 16, 34, var(--elaina-glass)) !important;
+  backdrop-filter: blur(var(--elaina-blur));
+}
+.main-yourLibraryX-library,
+.Root__right-sidebar-peek {
+  background: rgba(20, 16, 34, calc(var(--elaina-glass) + .18)) !important;
+  backdrop-filter: blur(12px);
+}
+.Root__main-view .os-viewport,
+.main-view-container__scroll-node,
+.main-view-container__scroll-node-child,
+.main-home-home,
+.main-home-homeHeader,
+.main-home-homeHeader::after,
+.main-entityHeader-background,
+.main-entityHeader-overlay,
+.main-actionBarBackground-background,
+.main-topBar-background,
+.main-topBar-overlay {
+  background: transparent !important;
+  background-image: none !important;
+}
+.main-home-homeHeader { min-height: 0; }
+.main-nowPlayingBar-container {
+  margin: 0 4px 3px;
+  padding: 12px 16px !important;
+  border: 1px solid var(--elaina-border);
+  border-radius: 18px;
+  background: rgba(21, 17, 36, .84) !important;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 30px rgba(8, 5, 20, .3), inset 0 1px rgba(255,255,255,.07);
+}
+.main-topBar-searchBar {
+  background: rgba(24, 19, 39, .78) !important;
+  border: 1px solid var(--elaina-border) !important;
+  backdrop-filter: blur(14px);
+}
+.main-topBar-searchBar:focus-within { border-color: var(--elaina-accent) !important; }
+.main-yourLibraryX-libraryRootlist [role="row"] { border-radius: 10px; }
+.main-yourLibraryX-libraryRootlist [role="row"]:hover,
+.main-trackList-trackListRow:hover {
+  background: rgba(196, 165, 245, .13) !important;
+}
+.main-trackList-trackListRow.main-trackList-selected { background: rgba(196, 165, 245, .19) !important; }
+.main-trackList-trackListHeader { background: rgba(24, 19, 39, .92) !important; backdrop-filter: blur(16px); }
+.main-card-card { background: rgba(26, 21, 40, .36) !important; border-radius: 13px; }
+.main-card-card:hover { background: rgba(70, 53, 96, .56) !important; }
+.main-cardImage-imageWrapper,
+.main-image-image,
+.main-nowPlayingWidget-coverArt { border-radius: 10px; }
+.main-entityHeader-image { box-shadow: 0 12px 40px rgba(9, 5, 24, .4); }
+.main-view-container h1,
+.main-view-container h2 { letter-spacing: -.025em; text-shadow: 0 2px 12px rgba(7,4,18,.4); }
+.main-playPauseButton-button {
+  background: var(--elaina-accent) !important;
+  color: #21162f !important;
+  box-shadow: 0 0 22px rgba(196, 165, 245, .2);
+}
+.progress-bar__fg,
+.progress-bar--is-active .progress-bar__fg { background: var(--elaina-accent) !important; }
+.main-playbackBar-slider { --fg-color: var(--elaina-accent); }
+.main-contextMenu-menu,
+.main-userWidget-dropDownMenu,
+.main-dropDown-dropDown { background: #272035 !important; border: 1px solid var(--elaina-border); }
+button:focus-visible,
+a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-offset: 3px; }
+#elaina-studio-button {
+  background: rgba(34, 26, 49, .86);
+  border: 1px solid rgba(218, 194, 255, .35);
+  color: #e5d6ff;
+  border-radius: 50%;
+  box-shadow: 0 0 18px rgba(183, 147, 233, .14);
+}
+#elaina-studio-button:hover { background: #49345f; }
+.elaina-settings { color: #f5f3ff; padding: 6px 2px 12px; }
+.elaina-settings .elaina-intro { color: #ccc2dd; margin: 0 0 22px; line-height: 1.5; }
+.elaina-settings label { display: grid; grid-template-columns: 1fr auto; gap: 12px; margin: 20px 0; font-size: 14px; }
+.elaina-settings input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--elaina-accent); }
+.elaina-settings output { color: #e3caff; font-variant-numeric: tabular-nums; }
+.elaina-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.elaina-settings button {
+  border: 1px solid rgba(214,195,243,.28);
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: #352b46;
+  color: #f5f3ff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+.elaina-settings button:hover { background: #59416f; }
+.elaina-settings button[aria-pressed="true"] { background: #c4a5f5; color: #24162f; }
+.elaina-settings .elaina-footer { margin-top: 20px; color: #bdb1cf; font-size: 12px; }
+.GenericModal:has(.elaina-settings) { background: #211a2e; border: 1px solid rgba(216,191,255,.25); border-radius: 18px; }
+.elaina-compact .main-trackList-trackListRow { min-height: 44px !important; height: 44px !important; }
+@media (max-width: 1000px) {
+  .Root__main-view { border-radius: 12px !important; }
+  .main-nowPlayingBar-container { padding: 8px !important; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root { --elaina-glass: .88 !important; --elaina-blur: 0px !important; }
+}

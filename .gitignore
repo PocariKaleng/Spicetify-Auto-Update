@@ -1,0 +1,7 @@
+themes/*/assets/
+*.log
+state.json
+settings.json
+updater.lock
+*.zip
+*-before-*.ini
