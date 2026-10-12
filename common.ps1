@@ -14,6 +14,18 @@ function Get-SpiceVersion([string]$Executable) {
     if ($LASTEXITCODE -ne 0 -or $version -notmatch '^\d+\.\d+\.\d+$') { throw 'Cannot read Spicetify version.' }
     return $version
 }
+function Invoke-SpiceCaptured([string]$Executable, [string[]]$CommandArguments) {
+    if (-not (Test-Path -LiteralPath $Executable -PathType Leaf)) { throw 'Spicetify executable was not found.' }
+    $previousPreference = $ErrorActionPreference
+    try {
+        # Windows PowerShell 5.1 turns redirected native stderr into error records.
+        # Spicetify writes progress there; only the exit code indicates failure.
+        $ErrorActionPreference = 'Continue'
+        $output = @(& $Executable @CommandArguments 2>&1)
+        $code = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $previousPreference }
+    return @{ ExitCode = $code; Output = $output }
+}
 function Get-SpiceContext([string]$Executable) {
     $configPath = (& $Executable --config | Out-String).Trim()
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $configPath)) { throw 'Spicetify configuration is missing. Open Spotify and sign in first.' }

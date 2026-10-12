@@ -43,10 +43,9 @@ try {
     $isPatched = (Test-Path -LiteralPath $indexPath) -and (Get-Content -LiteralPath $indexPath -Raw) -match 'spicetifyWrapper\.js'
     if ($fingerprint -ne $state.AppliedFingerprint -or -not $isPatched) {
         $commands = Get-SpiceRepairCommands $context.Apps
-        $output = & $spiceExe @commands 2>&1
-        $result = $LASTEXITCODE
-        $output | ForEach-Object { Write-UpdateLog (([string]$_) -replace '\x1b\[[0-9;]*[mK]', '') }
-        if ($result -ne 0) { throw "Spicetify repair exited with code $result." }
+        $run = Invoke-SpiceCaptured $spiceExe $commands
+        $run.Output | ForEach-Object { Write-UpdateLog (([string]$_) -replace '\x1b\[[0-9;]*[mK]', '') }
+        if ($run.ExitCode -ne 0) { throw "Spicetify repair exited with code $($run.ExitCode)." }
         if ((Get-Content -LiteralPath $indexPath -Raw) -notmatch 'spicetifyWrapper\.js') { throw 'Spicetify injection could not be verified.' }
         $context = Get-SpiceContext $spiceExe
         $state.AppliedFingerprint = Get-SpiceFingerprint $spiceExe $context
@@ -55,6 +54,7 @@ try {
     $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
     exit 0
 } catch {
-    Write-UpdateLog "ERROR: $($_.Exception.Message)"
+    $errorMessage = if ($_.Exception.Message) { $_.Exception.Message } else { ($_ | Out-String).Trim() }
+    Write-UpdateLog "ERROR: $errorMessage"
     exit 1
 } finally { if ($lock) { $lock.Dispose() } }

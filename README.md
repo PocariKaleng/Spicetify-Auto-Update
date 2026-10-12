@@ -75,8 +75,8 @@ Installer tema menyimpan `config-before-theme-*.ini` di `%LOCALAPPDATA%\spicetif
 node --check ./themes/ElainaGlass/theme.js
 ```
 
-Tes memeriksa parsing konfigurasi, jeda 24 jam, pemilihan perintah repair untuk stock/mixed/applied Spotify, dan deteksi perubahan tema. GitHub Actions menjalankannya di Windows.
+Tes memeriksa progres native pada stderr dan exit code Windows PowerShell 5.1, parsing konfigurasi, jeda 24 jam, pemilihan perintah repair untuk stock/mixed/applied Spotify, dan deteksi perubahan tema. GitHub Actions menjalankannya di Windows.
 
-Pemasangan ini juga diuji di Spotify desktop 1.2.95 dengan Spicetify 2.45.3: wallpaper lokal, preset, aksen, reset, dan persistensi pengaturan.
+Tema ini diperiksa pada Spotify desktop 1.2.95 dan 1.3.4 dengan Spicetify 2.45.3: wallpaper lokal, preset, aksen, reset, persistensi pengaturan, dan kontrol keyboard. Fitur Marketplace/extension tetap mengikuti dukungan versi Spicetify masing-masing.
 
 Referensi: [Spicetify resmi](https://spicetify.app/docs/getting-started), [struktur tema](https://spicetify.app/docs/development/themes), [deteksi status Spotify](https://github.com/spicetify/cli/blob/main/src/status/spotify/spotify.go).

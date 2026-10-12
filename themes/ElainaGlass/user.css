@@ -45,6 +45,21 @@ body::after {
   background: rgba(20, 16, 34, var(--elaina-glass)) !important;
   backdrop-filter: blur(var(--elaina-blur));
 }
+/* Spotify 1.3.4 renamed some containers; anchor to their stable contents. */
+.Root__top-container > div:has(.main-view-container) {
+  background: rgba(20, 16, 34, var(--elaina-glass)) !important;
+  backdrop-filter: blur(var(--elaina-blur));
+  border: 1px solid var(--elaina-border);
+  border-radius: 16px;
+}
+.Root__top-container > div:has(.YourLibraryX) {
+  background: rgba(20, 16, 34, calc(var(--elaina-glass) + .18)) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--elaina-border);
+  border-radius: 16px;
+}
+.YourLibraryX,
+div:has(> .YourLibraryX) { background: transparent !important; }
 .main-yourLibraryX-library,
 .Root__right-sidebar-peek {
   background: rgba(20, 16, 34, calc(var(--elaina-glass) + .18)) !important;
@@ -109,6 +124,13 @@ body::after {
 button:focus-visible,
 a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-offset: 3px; }
 #elaina-studio-button {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  margin-inline: 8px;
+  cursor: pointer;
   background: rgba(34, 26, 49, .86);
   border: 1px solid rgba(218, 194, 255, .35);
   color: #e5d6ff;
@@ -135,7 +157,21 @@ a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-of
 .elaina-settings button:hover { background: #59416f; }
 .elaina-settings button[aria-pressed="true"] { background: #c4a5f5; color: #24162f; }
 .elaina-settings .elaina-footer { margin-top: 20px; color: #bdb1cf; font-size: 12px; }
-.GenericModal:has(.elaina-settings) { background: #211a2e; border: 1px solid rgba(216,191,255,.25); border-radius: 18px; }
+.elaina-dialog {
+  width: min(440px, calc(100vw - 40px));
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 24px;
+  background: #211a2e;
+  color: #f5f3ff;
+  border: 1px solid rgba(216,191,255,.25);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.45);
+}
+.elaina-dialog::backdrop { background: rgba(6,4,12,.62); backdrop-filter: blur(3px); }
+.elaina-dialog header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.elaina-dialog h2 { font-size: 24px; font-weight: 700; margin: 0; }
+.elaina-dialog-close { border: 0; background: transparent; color: #ddd0ef; font-size: 28px; cursor: pointer; padding: 4px 10px; }
 .elaina-compact .main-trackList-trackListRow { min-height: 44px !important; height: 44px !important; }
 @media (max-width: 1000px) {
   .Root__main-view { border-radius: 12px !important; }

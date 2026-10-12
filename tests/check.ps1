@@ -10,6 +10,15 @@ Get-ChildItem -LiteralPath $repoRoot -Filter '*.ps1' | ForEach-Object {
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('spicetify-tests-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tempRoot | Out-Null
 try {
+    $childPath = Join-Path $tempRoot 'native-command.ps1'
+    Set-Content -LiteralPath $childPath -Value "[Console]::Error.WriteLine('progress'); Write-Output 'done'; exit 0"
+    $nativePS = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $run = Invoke-SpiceCaptured $nativePS @('-NoProfile', '-File', $childPath)
+    Assert-True ($run.ExitCode -eq 0) 'Native progress on stderr must not stop a successful repair.'
+    Assert-True (($run.Output -join ' ') -match 'progress') 'Native diagnostics were lost.'
+    Set-Content -LiteralPath $childPath -Value "[Console]::Error.WriteLine('failure'); exit 7"
+    $failed = Invoke-SpiceCaptured $nativePS @('-NoProfile', '-File', $childPath)
+    Assert-True ($failed.ExitCode -eq 7) 'Nonzero native exit codes must be preserved.'
     $iniPath = Join-Path $tempRoot 'config.ini'
     @'
 ; header
@@ -50,7 +59,7 @@ version = 1.2.95.453.gexample
     $third = Get-SpiceFingerprint $fakeExe $context
     Set-Content -LiteralPath $cssPath -Value 'body { background: blue; }'
     Assert-True ((Get-SpiceFingerprint $fakeExe $context) -ne $third) 'Theme edits must trigger repair.'
-    Write-Host 'PASS: syntax, INI paths/values, daily checks, repair selection, change detection.' -ForegroundColor Green
+    Write-Host 'PASS: native stderr/exit codes, syntax, INI paths/values, daily checks, repair selection, change detection.' -ForegroundColor Green
 } finally {
     if (Test-Path -LiteralPath (Join-Path $tempRoot 'Themes\MyTheme\user.css')) {
         Remove-Item -LiteralPath (Join-Path $tempRoot 'Themes\MyTheme\user.css') -Force

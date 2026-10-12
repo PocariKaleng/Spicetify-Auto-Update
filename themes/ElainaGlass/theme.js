@@ -64,18 +64,41 @@
       apply(); sync();
     });
     sync();
-    Spicetify.PopupModal.display({ title: 'Elaina Glass', content: panel });
+    const dialog = document.createElement('dialog');
+    dialog.className = 'elaina-dialog';
+    const header = document.createElement('header');
+    const title = document.createElement('h2');
+    title.id = 'elaina-dialog-title';
+    title.textContent = 'Elaina Glass';
+    dialog.setAttribute('aria-labelledby', title.id);
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'elaina-dialog-close';
+    close.textContent = '×';
+    close.setAttribute('aria-label', 'Tutup pengaturan');
+    close.onclick = () => dialog.close();
+    dialog.addEventListener('close', () => dialog.remove(), { once: true });
+    header.append(title, close);
+    dialog.append(header, panel);
+    document.body.append(dialog);
+    dialog.showModal();
   }
   function mount(attempt = 0) {
-    if (!window.Spicetify?.Topbar?.Button || !window.Spicetify?.PopupModal) {
+    const container = document.querySelector('.main-globalNav-historyButtonsWrapper') || document.querySelector('.Root__globalNav');
+    if (!container) {
       if (attempt < 60) setTimeout(() => mount(attempt + 1), 500);
       return;
     }
     if (document.getElementById('elaina-studio-button')) return;
     const icon = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5Z"/><path d="m19 2 .7 2.3L22 5l-2.3.7L19 8l-.7-2.3L16 5l2.3-.7Z"/></svg>';
-    const button = new Spicetify.Topbar.Button('Elaina Glass', icon, openSettings);
-    button.element.id = 'elaina-studio-button';
-    button.element.setAttribute('aria-label', 'Pengaturan Elaina Glass');
+    const button = document.createElement('button');
+    button.id = 'elaina-studio-button';
+    button.type = 'button';
+    button.innerHTML = icon;
+    button.title = 'Elaina Glass';
+    button.setAttribute('aria-label', 'Pengaturan Elaina Glass');
+    button.addEventListener('click', openSettings);
+    container.append(button);
   }
   mount();
 })();
