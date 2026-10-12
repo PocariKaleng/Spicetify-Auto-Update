@@ -69,3 +69,5 @@ version = 1.2.95.453.gexample
     Get-ChildItem -LiteralPath $tempRoot -File | ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force }
     Remove-Item -LiteralPath $tempRoot -Force
 }
+# The deliberately failing child process must not become the CI step's exit code.
+exit 0

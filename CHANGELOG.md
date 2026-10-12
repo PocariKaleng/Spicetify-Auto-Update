@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 — 2026-10-12
+
+- Report a successful test exit after checking a deliberately failing native command in CI.
+
 ## 1.0.1 — 2026-10-12
 
 - Handle native progress messages on Windows PowerShell 5.1 without aborting Spotify repair.
