@@ -41,7 +41,7 @@ Updater mendukung instalasi desktop Windows yang dapat ditulis oleh akun penggun
 Tutup Spotify untuk menjalankan pengecekan sekarang:
 
 ```powershell
-& "$env:LOCALAPPDATA\spicetify\AutoUpdate\update.ps1" -CheckNow
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\spicetify\AutoUpdate\update.ps1" -CheckNow
 ```
 
 Status dan log:
@@ -61,7 +61,7 @@ Enable-ScheduledTask -TaskName 'Spicetify Auto Update'
 Hapus task otomatis, sambil menyimpan Spicetify dan tema:
 
 ```powershell
-& "$env:LOCALAPPDATA\spicetify\AutoUpdate\uninstall.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:LOCALAPPDATA\spicetify\AutoUpdate\uninstall.ps1"
 ```
 
 ## Kembali ke tema sebelumnya

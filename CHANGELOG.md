@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.3 — 2026-10-12
+
+- Load the one-line installer's helper without changing Windows execution policy.
+- Include process-scoped execution policy in manual update/uninstall commands.
+
 ## 1.0.2 — 2026-10-12
 
 - Report a successful test exit after checking a deliberately failing native command in CI.

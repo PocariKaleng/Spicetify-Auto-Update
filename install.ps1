@@ -22,7 +22,8 @@ function Save-RepoFile([string]$RelativePath, [string]$Destination) {
 $existingTask = Get-ScheduledTask -TaskName 'Spicetify Auto Update' -ErrorAction SilentlyContinue
 if ($existingTask) { Stop-ScheduledTask -TaskName 'Spicetify Auto Update' }
 foreach ($file in @('common.ps1', 'update.ps1', 'uninstall.ps1')) { Save-RepoFile $file (Join-Path $runtimeRoot $file) }
-. (Join-Path $runtimeRoot 'common.ps1')
+# Load the downloaded helper like the inline installer, without changing policy.
+. ([scriptblock]::Create((Get-Content -LiteralPath (Join-Path $runtimeRoot 'common.ps1') -Raw)))
 if (-not (Test-Path -LiteralPath $spiceExe)) {
     if (Get-Process -Name Spotify -ErrorAction SilentlyContinue) { throw 'Close Spotify before the first Spicetify installation, then rerun this command.' }
     $release = Invoke-RestMethod 'https://api.github.com/repos/spicetify/cli/releases/latest' -TimeoutSec 60
