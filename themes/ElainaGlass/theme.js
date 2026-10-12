@@ -1,8 +1,13 @@
 (() => {
   const key = 'elaina-glass-settings-v1';
-  const defaults = { dim: 38, glass: 52, blur: 3, compact: false, accent: '#c4a5f5' };
-  let settings = { ...defaults };
-  try { settings = { ...defaults, ...JSON.parse(localStorage.getItem(key) || '{}') }; } catch {}
+  const defaults = { dim: 40, glass: 50, blur: 2, compact: false, accent: '#c4a5f5', styleRevision: 2 };
+  let stored = {};
+  try { stored = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
+  let settings = { ...defaults, ...stored };
+  if ((stored.styleRevision || 1) < 2 && settings.dim === 38 && settings.glass === 52 && settings.blur === 3) {
+    Object.assign(settings, { dim: 40, glass: 50, blur: 2 });
+  }
+  settings.styleRevision = 2;
   const clamp = (value, min, max, fallback) => Number.isFinite(Number(value)) ? Math.min(max, Math.max(min, Number(value))) : fallback;
   function apply() {
     settings.dim = clamp(settings.dim, 20, 75, defaults.dim);
@@ -54,9 +59,9 @@
       const button = event.target.closest('button');
       if (!button) return;
       const presets = {
-        portrait: { dim: 28, glass: 36, blur: 0 },
-        balanced: { dim: 38, glass: 52, blur: 3 },
-        focus: { dim: 58, glass: 72, blur: 8 }
+        portrait: { dim: 30, glass: 38, blur: 0 },
+        balanced: { dim: 40, glass: 50, blur: 2 },
+        focus: { dim: 58, glass: 72, blur: 6 }
       };
       if (button.dataset.preset) settings = { ...settings, ...presets[button.dataset.preset] };
       if (button.dataset.accent) settings.accent = button.dataset.accent;

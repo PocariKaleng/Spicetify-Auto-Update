@@ -18,6 +18,8 @@ Command ini bisa dijalankan ulang untuk memperbarui skrip updater. Satu task Win
 
 Tema kaca gelap dengan aksen lavender, wallpaper lokal, dan tombol bintang **Elaina Glass** di kiri atas Spotify. Tombolnya menyediakan preset Portrait / Balanced / Focus, kegelapan foto, kepekatan panel, blur, aksen Lavender / Moonlight / Rose, dan daftar lagu rapat. Pengaturan tampilan tersimpan otomatis.
 
+Home memakai latar foto yang menyambung tanpa gradient hitam bawaan. Sudut panel seragam, pemutar sejajar dengan library, serta toolbar dan panel lyrics memakai warna yang selaras. Preset Balanced: foto 40%, panel 50%, blur 2 px.
+
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/PocariKaleng/Spicetify-Auto-Update/main/install.ps1))) -WallpaperPath "$env:USERPROFILE\Pictures\wallpaper.jpg"
 ```

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4 — 2026-10-12
+
+- Remove Spotify's opaque Home gradient that cut across the wallpaper.
+- Align panel corners and the player, with a quieter toolbar and matching lyrics colors.
+- Refine Balanced/Portrait presets while preserving customized appearance settings.
+- Verify desktop and narrow layouts, scrolling, and keyboard controls in Spotify 1.3.4.
+
 ## 1.0.3 — 2026-10-12
 
 - Load the one-line installer's helper without changing Windows execution policy.

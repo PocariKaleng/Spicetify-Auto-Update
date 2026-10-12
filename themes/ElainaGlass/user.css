@@ -1,10 +1,11 @@
 /* Elaina Glass: local wallpaper, readable glass, no remote assets. */
 :root {
-  --elaina-dim: .38;
-  --elaina-glass: .52;
-  --elaina-blur: 3px;
+  --elaina-dim: .40;
+  --elaina-glass: .50;
+  --elaina-blur: 2px;
   --elaina-accent: #c4a5f5;
-  --elaina-border: rgba(228, 218, 255, .17);
+  --elaina-border: rgba(228, 218, 255, .12);
+  --elaina-side-fill: rgba(22, 18, 33, calc(var(--elaina-glass) + .32));
   --elaina-wallpaper: url("elaina-wallpaper.jpg");
 }
 body {
@@ -25,21 +26,24 @@ body::after {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(16, 11, 28, .23), transparent 55%), linear-gradient(0deg, rgba(14, 10, 27, .58), transparent 42%);
+  background: radial-gradient(ellipse at 55% 42%, transparent 25%, rgba(14, 10, 27, .24) 100%), linear-gradient(0deg, rgba(14, 10, 27, .42), transparent 42%);
 }
 .Root__top-container,
-.Root__globalNav,
 .Root__nav-bar,
 .Root__now-playing-bar {
   background: transparent !important;
 }
-.Root__globalNav { padding-inline: 12px; }
+.Root__globalNav {
+  padding-inline: 12px;
+  background: #181522 !important;
+  border-bottom: 1px solid rgba(228, 218, 255, .06);
+}
 .Root__main-view,
 .Root__right-sidebar-peek,
 .main-yourLibraryX-library {
   border: 1px solid var(--elaina-border);
   border-radius: 16px !important;
-  box-shadow: 0 12px 35px rgba(8, 5, 20, .22), inset 0 1px rgba(255, 255, 255, .055);
+  box-shadow: 0 8px 28px rgba(8, 5, 20, .18), inset 0 1px rgba(255, 255, 255, .035);
 }
 .Root__main-view {
   background: rgba(20, 16, 34, var(--elaina-glass)) !important;
@@ -53,8 +57,8 @@ body::after {
   border-radius: 16px;
 }
 .Root__top-container > div:has(.YourLibraryX) {
-  background: rgba(20, 16, 34, calc(var(--elaina-glass) + .18)) !important;
-  backdrop-filter: blur(12px);
+  background: var(--elaina-side-fill) !important;
+  backdrop-filter: blur(8px);
   border: 1px solid var(--elaina-border);
   border-radius: 16px;
 }
@@ -62,8 +66,19 @@ body::after {
 div:has(> .YourLibraryX) { background: transparent !important; }
 .main-yourLibraryX-library,
 .Root__right-sidebar-peek {
-  background: rgba(20, 16, 34, calc(var(--elaina-glass) + .18)) !important;
-  backdrop-filter: blur(12px);
+  background: var(--elaina-side-fill) !important;
+  backdrop-filter: blur(8px);
+}
+.Root__top-container > div:has(> .LayoutResizer__inline-start) {
+  background: var(--elaina-side-fill) !important;
+  border: 1px solid var(--elaina-border);
+  border-radius: 16px !important;
+  box-shadow: 0 8px 28px rgba(8, 5, 20, .18);
+}
+.Root__top-container > div:has(> .LayoutResizer__inline-start) > div:first-child {
+  border-radius: inherit;
+  overflow: hidden;
+  background: transparent !important;
 }
 .Root__main-view .os-viewport,
 .main-view-container__scroll-node,
@@ -80,21 +95,55 @@ div:has(> .YourLibraryX) { background: transparent !important; }
   background-image: none !important;
 }
 .main-home-homeHeader { min-height: 0; }
-.main-nowPlayingBar-container {
-  margin: 0 4px 3px;
-  padding: 12px 16px !important;
-  border: 1px solid var(--elaina-border);
-  border-radius: 18px;
-  background: rgba(21, 17, 36, .84) !important;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 8px 30px rgba(8, 5, 20, .3), inset 0 1px rgba(255,255,255,.07);
+/* The native Home gradient is an empty decorative sibling before its content. */
+.main-view-container main > div:has(> [data-testid="home-page"]) > div:first-child:empty {
+  background: transparent !important;
+  background-image: none !important;
 }
-.main-topBar-searchBar {
+/* Keep sticky controls readable when scrolling, without the 256px color block. */
+.main-view-container main > div:has(> [data-testid="home-page"]) > div:has(> .contentSpacing) > div:first-child {
+  background: rgba(24, 20, 36, .92) !important;
+  backdrop-filter: blur(14px);
+}
+.Root__top-container > div:has(> [data-testid="now-playing-bar"]) {
+  background: transparent !important;
+}
+.main-nowPlayingBar-container {
+  margin: 0;
+  padding: 8px 12px !important;
+  border: 1px solid var(--elaina-border);
+  border-radius: 16px;
+  background: rgba(22, 18, 33, .94) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 24px rgba(8, 5, 20, .18), inset 0 1px rgba(255,255,255,.035);
+}
+.main-topBar-searchBar,
+.Root__globalNav input {
   background: rgba(24, 19, 39, .78) !important;
   border: 1px solid var(--elaina-border) !important;
   backdrop-filter: blur(14px);
 }
 .main-topBar-searchBar:focus-within { border-color: var(--elaina-accent) !important; }
+.Root__globalNav input:focus { border-color: var(--elaina-accent) !important; }
+.Root__top-container > div:has(> .LayoutResizer__inline-start) video {
+  filter: saturate(.78) brightness(.78);
+}
+[data-testid="lyrics-npv-section"] {
+  background: rgba(37, 29, 52, .88) !important;
+  border: 1px solid var(--elaina-border);
+  border-radius: 12px !important;
+  --lyrics-color-active: #f5f3ff !important;
+  --lyrics-color-inactive: #ab9bbd !important;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(208, 190, 231, .24);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgba(208, 190, 231, .44); }
 .main-yourLibraryX-libraryRootlist [role="row"] { border-radius: 10px; }
 .main-yourLibraryX-libraryRootlist [role="row"]:hover,
 .main-trackList-trackListRow:hover {
@@ -124,18 +173,18 @@ div:has(> .YourLibraryX) { background: transparent !important; }
 button:focus-visible,
 a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-offset: 3px; }
 #elaina-studio-button {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  margin-inline: 8px;
+  margin-inline: 6px;
   cursor: pointer;
-  background: rgba(34, 26, 49, .86);
-  border: 1px solid rgba(218, 194, 255, .35);
+  background: #30263f;
+  border: 1px solid rgba(218, 194, 255, .23);
   color: #e5d6ff;
   border-radius: 50%;
-  box-shadow: 0 0 18px rgba(183, 147, 233, .14);
+  transition: background-color 150ms ease;
 }
 #elaina-studio-button:hover { background: #49345f; }
 .elaina-settings { color: #f5f3ff; padding: 6px 2px 12px; }
@@ -179,4 +228,7 @@ a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-of
 }
 @media (prefers-reduced-transparency: reduce) {
   :root { --elaina-glass: .88 !important; --elaina-blur: 0px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #elaina-studio-button { transition: none; }
 }
