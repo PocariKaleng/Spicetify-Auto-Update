@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.5 — 2026-10-13
+
+- Start scheduled updates through a hidden Windows Script Host launcher to prevent PowerShell console flashes.
+- Preserve the updater exit code, schedule, and existing appearance configuration.
+
 ## 1.0.4 — 2026-10-12
 
 - Remove Spotify's opaque Home gradient that cut across the wallpaper.

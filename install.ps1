@@ -21,7 +21,7 @@ function Save-RepoFile([string]$RelativePath, [string]$Destination) {
 # Reinstalling replaces the same task; it never creates a second updater.
 $existingTask = Get-ScheduledTask -TaskName 'Spicetify Auto Update' -ErrorAction SilentlyContinue
 if ($existingTask) { Stop-ScheduledTask -TaskName 'Spicetify Auto Update' }
-foreach ($file in @('common.ps1', 'update.ps1', 'uninstall.ps1')) { Save-RepoFile $file (Join-Path $runtimeRoot $file) }
+foreach ($file in @('common.ps1', 'update.ps1', 'uninstall.ps1', 'run-hidden.vbs')) { Save-RepoFile $file (Join-Path $runtimeRoot $file) }
 # Load the downloaded helper like the inline installer, without changing policy.
 . ([scriptblock]::Create((Get-Content -LiteralPath (Join-Path $runtimeRoot 'common.ps1') -Raw)))
 if (-not (Test-Path -LiteralPath $spiceExe)) {
@@ -52,7 +52,7 @@ if ($WallpaperPath) {
 # Invalidate the old updater's state, so the first idle run verifies everything.
 @{ LastReleaseCheck = ''; AppliedFingerprint = '' } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $runtimeRoot 'state.json') -Encoding UTF8
 $userId = [Security.Principal.WindowsIdentity]::GetCurrent().Name
-$action = New-ScheduledTaskAction -Execute (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -Argument ('-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{0}"' -f (Join-Path $runtimeRoot 'update.ps1')) -WorkingDirectory $runtimeRoot
+$action = New-ScheduledTaskAction -Execute (Join-Path $env:SystemRoot 'System32\wscript.exe') -Argument ('//B //Nologo "{0}"' -f (Join-Path $runtimeRoot 'run-hidden.vbs')) -WorkingDirectory $runtimeRoot
 $logon = New-ScheduledTaskTrigger -AtLogOn -User $userId
 $logon.Delay = 'PT2M'
 $hourly = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(5) -RepetitionInterval (New-TimeSpan -Hours 1)

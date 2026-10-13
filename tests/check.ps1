@@ -19,6 +19,16 @@ try {
     Set-Content -LiteralPath $childPath -Value "[Console]::Error.WriteLine('failure'); exit 7"
     $failed = Invoke-SpiceCaptured $nativePS @('-NoProfile', '-File', $childPath)
     Assert-True ($failed.ExitCode -eq 7) 'Nonzero native exit codes must be preserved.'
+    # Verify the GUI launcher resolves its sibling script and forwards its result.
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'run-hidden.vbs') -Destination $tempRoot
+    $fakeUpdater = Join-Path $tempRoot 'update.ps1'
+    $scriptHost = Join-Path $env:SystemRoot 'System32\wscript.exe'
+    $hostArguments = '//B //Nologo "{0}"' -f (Join-Path $tempRoot 'run-hidden.vbs')
+    foreach ($expected in @(0, 7)) {
+        Set-Content -LiteralPath $fakeUpdater -Value "exit $expected"
+        $process = Start-Process -FilePath $scriptHost -ArgumentList $hostArguments -WindowStyle Hidden -Wait -PassThru
+        Assert-True ($process.ExitCode -eq $expected) 'Hidden launcher did not forward the updater exit code.'
+    }
     $iniPath = Join-Path $tempRoot 'config.ini'
     @'
 ; header

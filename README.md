@@ -30,6 +30,7 @@ Gunakan foto JPG/JPEG. Pemasangan tema me-restart Spotify agar tampil langsung. 
 
 - Berjalan 2 menit setelah login Windows, kemudian setiap jam selama akun masih login.
 - Jika Spotify sedang terbuka, pemeriksaan ditunda sampai jadwal berikutnya.
+- Task memakai `wscript.exe` dan peluncur tersembunyi agar jendela PowerShell tidak berkedip ketika dimulai.
 - Mengecek rilis stabil resmi Spicetify maksimal sekali dalam 24 jam saat Spotify ditutup.
 - Memverifikasi checksum SHA-256 apabila disediakan oleh GitHub.
 - Mendeteksi perubahan Spotify, konfigurasi, berkas tema, dan wallpaper; menerapkan ulang patch jika diperlukan.
