@@ -38,6 +38,13 @@ body::after {
   background: #181522 !important;
   border-bottom: 1px solid rgba(228, 218, 255, .06);
 }
+/* Inset only the content panes, preserving Spotify's grid and player position. */
+.Root__top-container > div:has(.main-view-container),
+.Root__top-container > div:has(.YourLibraryX),
+.Root__top-container > div:has(> .LayoutResizer__inline-start) {
+  margin-top: 12px;
+  min-height: 0;
+}
 .Root__main-view,
 .Root__right-sidebar-peek,
 .main-yourLibraryX-library {

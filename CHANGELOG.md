@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.6 — 2026-10-13
+
+- Add a consistent 12px gap below the Spotify toolbar across all three content panes.
+- Preserve player alignment and fit in desktop and narrow windows.
+
 ## 1.0.5 — 2026-10-13
 
 - Start scheduled updates through a hidden Windows Script Host launcher to prevent PowerShell console flashes.
