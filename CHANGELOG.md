@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.7 — 2026-10-13
+
+- Refresh theme-only changes in place instead of restoring and rebuilding Spotify resources.
+- Check for Spotify again immediately before repair and log when it opens during patching and needs a restart.
+- Cover theme refresh and full-repair fallbacks with Windows regression checks.
+
 ## 1.0.6 — 2026-10-13
 
 - Add a consistent 12px gap below the Spotify toolbar across all three content panes.

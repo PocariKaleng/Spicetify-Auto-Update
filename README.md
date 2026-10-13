@@ -34,7 +34,9 @@ Gunakan foto JPG/JPEG. Pemasangan tema me-restart Spotify agar tampil langsung. 
 - Mengecek rilis stabil resmi Spicetify maksimal sekali dalam 24 jam saat Spotify ditutup.
 - Memverifikasi checksum SHA-256 apabila disediakan oleh GitHub.
 - Mendeteksi perubahan Spotify, konfigurasi, berkas tema, dan wallpaper; menerapkan ulang patch jika diperlukan.
+- Perubahan berkas tema saja memakai `refresh`, sehingga Spotify tidak dikembalikan ke tampilan bawaan selama prosesnya.
 - Tidak membuka atau menutup Spotify selama proses otomatis.
+- Jika Spotify dibuka di tengah pemasangan patch penuh, log mencatat bahwa Spotify perlu dibuka ulang untuk memuat tema.
 - Error dicatat dan dicoba lagi pada jadwal berikutnya; tidak mengubah konfigurasi ke tema default.
 
 Updater mendukung instalasi desktop Windows yang dapat ditulis oleh akun pengguna. Pembaruan Spotify bisa membutuhkan rilis Spicetify baru; script tidak bisa membuat versi CLI yang belum tersedia menjadi kompatibel.

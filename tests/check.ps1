@@ -48,9 +48,16 @@ version = 1.2.95.453.gexample
     Assert-True (Test-SpiceReleaseDue @{ LastReleaseCheck = [DateTimeOffset]::UtcNow.AddHours(-25).ToString('o') } $false) 'Expired check was skipped.'
     Assert-True (Test-SpiceReleaseDue @{ LastReleaseCheck = [DateTimeOffset]::UtcNow.ToString('o') } $true) 'CheckNow did not bypass daily limit.'
     Assert-True ((Get-SpiceRepairCommands $tempRoot) -join ' ' -eq 'restore backup apply --no-restart --quiet') 'Applied Spotify needs a restore before backup.'
+    $beforeThemeEdit = '2.45.3|1.3.4.258|config-hash|index-hash|theme-before'
+    $afterThemeEdit = '2.45.3|1.3.4.258|config-hash|index-hash|theme-after'
+    Assert-True ((Get-SpiceRepairCommands $tempRoot $beforeThemeEdit $afterThemeEdit) -join ' ' -eq 'refresh --no-restart') 'Theme-only edits must not restore Spotify to its default files.'
+    foreach ($installationChange in @('2.46.0|1.3.4.258|config-hash|index-hash|theme-after', '2.45.3|1.3.5|config-hash|index-hash|theme-after', '2.45.3|1.3.4.258|changed-config|index-hash|theme-after', '2.45.3|1.3.4.258|config-hash|changed-index|theme-after', '2.45.3|1.3.4.258|config-hash|missing|theme-after')) {
+        Assert-True ((Get-SpiceRepairCommands $tempRoot $beforeThemeEdit $installationChange) -join ' ' -eq 'restore backup apply --no-restart --quiet') 'Installation changes must still receive a full repair.'
+    }
     $stockFile = Join-Path $tempRoot 'xpui.spa'
     Set-Content -LiteralPath $stockFile -Value 'stock'
     Assert-True ((Get-SpiceRepairCommands $tempRoot) -join ' ' -eq 'backup apply --no-restart') 'Stock/mixed Spotify must back up new stock files.'
+    Assert-True ((Get-SpiceRepairCommands $tempRoot $beforeThemeEdit $afterThemeEdit) -join ' ' -eq 'backup apply --no-restart') 'Stock files must override the theme refresh shortcut.'
     # Stub the CLI dependency; verify fingerprints against actual changed files.
     function Get-SpiceVersion { return '2.45.3' }
     Set-Content -LiteralPath (Join-Path $tempRoot 'Spotify.exe') -Value ''

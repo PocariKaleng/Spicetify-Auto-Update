@@ -55,9 +55,20 @@ function Test-SpiceReleaseDue($State, [bool]$CheckNow) {
     if ($CheckNow -or -not $State.LastReleaseCheck) { return $true }
     return ([DateTimeOffset]::UtcNow - [DateTimeOffset]::Parse($State.LastReleaseCheck)).TotalHours -ge 24
 }
-function Get-SpiceRepairCommands([string]$Apps) {
+function Get-SpiceRepairCommands([string]$Apps, [string]$PreviousFingerprint = '', [string]$CurrentFingerprint = '') {
     # Matches spicetify/cli/src/status/spotify: .spa files mean stock/mixed.
     if (@(Get-ChildItem -LiteralPath $Apps -Filter '*.spa' -File).Count -gt 0) { return @('backup', 'apply', '--no-restart') }
+    # Fingerprints start with CLI, Spotify, config and index; remaining hashes are
+    # local theme files when no stock .spa files exist. Refresh those in place.
+    $previous = $PreviousFingerprint -split '\|'
+    $current = $CurrentFingerprint -split '\|'
+    if ($PreviousFingerprint -ne $CurrentFingerprint -and $previous.Count -ge 5 -and $current.Count -ge 5 -and $current[3] -ne 'missing') {
+        $sameInstallation = $true
+        for ($i = 0; $i -lt 4; $i++) {
+            if ($previous[$i] -ne $current[$i]) { $sameInstallation = $false; break }
+        }
+        if ($sameInstallation) { return @('refresh', '--no-restart') }
+    }
     return @('restore', 'backup', 'apply', '--no-restart', '--quiet')
 }
 function Install-SpiceRelease([string]$Executable, $Release, [string]$RuntimeRoot) {

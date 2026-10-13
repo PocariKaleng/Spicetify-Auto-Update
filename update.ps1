@@ -42,7 +42,13 @@ try {
     $indexPath = Join-Path $context.Apps 'xpui\index.html'
     $isPatched = (Test-Path -LiteralPath $indexPath) -and (Get-Content -LiteralPath $indexPath -Raw) -match 'spicetifyWrapper\.js'
     if ($fingerprint -ne $state.AppliedFingerprint -or -not $isPatched) {
-        $commands = Get-SpiceRepairCommands $context.Apps
+        $commands = if ($isPatched) { Get-SpiceRepairCommands $context.Apps $state.AppliedFingerprint $fingerprint }
+                    else { Get-SpiceRepairCommands $context.Apps }
+        if (Get-Process -Name Spotify -ErrorAction SilentlyContinue) {
+            Write-UpdateLog 'Deferred: Spotify opened before repair.'
+            exit 0
+        }
+        Write-UpdateLog ('Repair: ' + ($commands -join ' '))
         $run = Invoke-SpiceCaptured $spiceExe $commands
         $run.Output | ForEach-Object { Write-UpdateLog (([string]$_) -replace '\x1b\[[0-9;]*[mK]', '') }
         if ($run.ExitCode -ne 0) { throw "Spicetify repair exited with code $($run.ExitCode)." }
@@ -50,6 +56,9 @@ try {
         $context = Get-SpiceContext $spiceExe
         $state.AppliedFingerprint = Get-SpiceFingerprint $spiceExe $context
         Write-UpdateLog 'Verified: patch reapplied; existing theme and local wallpaper preserved.'
+        if (Get-Process -Name Spotify -ErrorAction SilentlyContinue) {
+            Write-UpdateLog 'Restart needed: Spotify opened during repair. Reopen Spotify to load the patched files.'
+        }
     } else { Write-UpdateLog "Healthy: Spicetify $(Get-SpiceVersion $spiceExe); no changes needed." }
     $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
     exit 0
