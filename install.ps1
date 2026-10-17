@@ -1,6 +1,7 @@
 param(
     [string]$WallpaperPath,
-    [string]$SourceDirectory = $PSScriptRoot
+    [string]$SourceDirectory = $PSScriptRoot,
+    [switch]$AutoRestart
 )
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -48,17 +49,25 @@ if ($WallpaperPath) {
     else { & $spiceExe backup apply | Out-Host }
     if ($LASTEXITCODE -ne 0) { throw 'Theme application failed.' }
 }
-@{ SpicetifyExecutable = $spiceExe } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $runtimeRoot 'settings.json') -Encoding UTF8
-# Invalidate the old updater's state, so the first idle run verifies everything.
-@{ LastReleaseCheck = ''; AppliedFingerprint = '' } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $runtimeRoot 'state.json') -Encoding UTF8
+$settingsPath = Join-Path $runtimeRoot 'settings.json'
+$autoRestartEnabled = [bool]$AutoRestart
+if (-not $PSBoundParameters.ContainsKey('AutoRestart') -and (Test-Path -LiteralPath $settingsPath)) {
+    $autoRestartEnabled = [bool](Get-Content -LiteralPath $settingsPath -Raw | ConvertFrom-Json).AutoRestart
+}
+@{ SpicetifyExecutable = $spiceExe; AutoRestart = $autoRestartEnabled } | ConvertTo-Json | Set-Content -LiteralPath $settingsPath -Encoding UTF8
+# Existing fingerprints already detect config, Spotify, CLI and theme changes.
+$statePath = Join-Path $runtimeRoot 'state.json'
+if (-not (Test-Path -LiteralPath $statePath)) {
+    @{ LastReleaseCheck = ''; AppliedFingerprint = '' } | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+}
 $userId = [Security.Principal.WindowsIdentity]::GetCurrent().Name
 $action = New-ScheduledTaskAction -Execute (Join-Path $env:SystemRoot 'System32\wscript.exe') -Argument ('//B //Nologo "{0}"' -f (Join-Path $runtimeRoot 'run-hidden.vbs')) -WorkingDirectory $runtimeRoot
 $logon = New-ScheduledTaskTrigger -AtLogOn -User $userId
 $logon.Delay = 'PT2M'
-$hourly = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(5) -RepetitionInterval (New-TimeSpan -Hours 1)
+$periodic = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(5) -RepetitionInterval (New-TimeSpan -Minutes 5)
 $principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType Interactive -RunLevel Limited
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 15)
-Register-ScheduledTask -TaskName 'Spicetify Auto Update' -Action $action -Trigger @($logon, $hourly) -Principal $principal -Settings $settings -Description 'Check official Spicetify releases daily; repair patches hourly while Spotify is closed.' -Force | Out-Null
+Register-ScheduledTask -TaskName 'Spicetify Auto Update' -Action $action -Trigger @($logon, $periodic) -Principal $principal -Settings $settings -Description 'Check official Spicetify releases daily; detect missing patches every 5 minutes with optional automatic Spotify restart.' -Force | Out-Null
 Start-ScheduledTask -TaskName 'Spicetify Auto Update'
-Write-Host 'Spicetify Auto Update aktif. Cek setiap jam, rilis terbaru sekali sehari. Spotify yang terbuka tidak akan dihentikan.' -ForegroundColor Green
+Write-Host "Spicetify Auto Update aktif. Cek setiap 5 menit, rilis terbaru sekali sehari. Restart otomatis: $autoRestartEnabled." -ForegroundColor Green
 Write-Host "Log: $(Join-Path $runtimeRoot 'update.log')"

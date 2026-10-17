@@ -47,6 +47,9 @@ version = 1.2.95.453.gexample
     Assert-True (-not (Test-SpiceReleaseDue @{ LastReleaseCheck = [DateTimeOffset]::UtcNow.AddHours(-2).ToString('o') } $false)) 'Daily limit was ignored.'
     Assert-True (Test-SpiceReleaseDue @{ LastReleaseCheck = [DateTimeOffset]::UtcNow.AddHours(-25).ToString('o') } $false) 'Expired check was skipped.'
     Assert-True (Test-SpiceReleaseDue @{ LastReleaseCheck = [DateTimeOffset]::UtcNow.ToString('o') } $true) 'CheckNow did not bypass daily limit.'
+    Assert-True (Test-SpiceRecoveryDue @{}) 'Existing updater state must permit the first automatic recovery.'
+    Assert-True (-not (Test-SpiceRecoveryDue @{ RecoveryRetryAfter = [DateTimeOffset]::UtcNow.AddMinutes(25).ToString('o') })) 'Failed recovery must not restart Spotify again during cooldown.'
+    Assert-True (Test-SpiceRecoveryDue @{ RecoveryRetryAfter = [DateTimeOffset]::UtcNow.AddMinutes(-1).ToString('o') }) 'Recovery should resume after its cooldown.'
     Assert-True ((Get-SpiceRepairCommands $tempRoot) -join ' ' -eq 'restore backup apply --no-restart --quiet') 'Applied Spotify needs a restore before backup.'
     $beforeThemeEdit = '2.45.3|1.3.4.258|config-hash|index-hash|theme-before'
     $afterThemeEdit = '2.45.3|1.3.4.258|config-hash|index-hash|theme-after'
@@ -55,7 +58,16 @@ version = 1.2.95.453.gexample
         Assert-True ((Get-SpiceRepairCommands $tempRoot $beforeThemeEdit $installationChange) -join ' ' -eq 'restore backup apply --no-restart --quiet') 'Installation changes must still receive a full repair.'
     }
     $stockFile = Join-Path $tempRoot 'xpui.spa'
+    $fakeXpui = Join-Path $tempRoot 'xpui'
+    New-Item -ItemType Directory -Path $fakeXpui | Out-Null
+    $fakeIndex = Join-Path $fakeXpui 'index.html'
+    Assert-True (-not (Test-SpicePatchApplied $tempRoot)) 'Missing app HTML must not count as patched.'
+    Set-Content -LiteralPath $fakeIndex -Value '<html>stock</html>'
+    Assert-True (-not (Test-SpicePatchApplied $tempRoot)) 'Stock app HTML must not count as patched.'
+    Set-Content -LiteralPath $fakeIndex -Value '<script src="helper/spicetifyWrapper.js"></script>'
+    Assert-True (Test-SpicePatchApplied $tempRoot) 'Injected app HTML should count as patched.'
     Set-Content -LiteralPath $stockFile -Value 'stock'
+    Assert-True (-not (Test-SpicePatchApplied $tempRoot)) 'New stock archives must override stale injected app HTML.'
     Assert-True ((Get-SpiceRepairCommands $tempRoot) -join ' ' -eq 'backup apply --no-restart') 'Stock/mixed Spotify must back up new stock files.'
     Assert-True ((Get-SpiceRepairCommands $tempRoot $beforeThemeEdit $afterThemeEdit) -join ' ' -eq 'backup apply --no-restart') 'Stock files must override the theme refresh shortcut.'
     # Stub the CLI dependency; verify fingerprints against actual changed files.
@@ -78,6 +90,10 @@ version = 1.2.95.453.gexample
     Assert-True ((Get-SpiceFingerprint $fakeExe $context) -ne $third) 'Theme edits must trigger repair.'
     Write-Host 'PASS: native stderr/exit codes, syntax, INI paths/values, daily checks, repair selection, change detection.' -ForegroundColor Green
 } finally {
+    if (Test-Path -LiteralPath (Join-Path $tempRoot 'xpui\index.html')) {
+        Remove-Item -LiteralPath (Join-Path $tempRoot 'xpui\index.html') -Force
+        Remove-Item -LiteralPath (Join-Path $tempRoot 'xpui') -Force
+    }
     if (Test-Path -LiteralPath (Join-Path $tempRoot 'Themes\MyTheme\user.css')) {
         Remove-Item -LiteralPath (Join-Path $tempRoot 'Themes\MyTheme\user.css') -Force
         Remove-Item -LiteralPath (Join-Path $tempRoot 'Themes\MyTheme') -Force

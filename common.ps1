@@ -55,6 +55,16 @@ function Test-SpiceReleaseDue($State, [bool]$CheckNow) {
     if ($CheckNow -or -not $State.LastReleaseCheck) { return $true }
     return ([DateTimeOffset]::UtcNow - [DateTimeOffset]::Parse($State.LastReleaseCheck)).TotalHours -ge 24
 }
+function Test-SpicePatchApplied([string]$Apps) {
+    # Spotify updates can leave the old patched folder beside new stock archives.
+    if (@(Get-ChildItem -LiteralPath $Apps -Filter '*.spa' -File).Count -gt 0) { return $false }
+    $index = Join-Path $Apps 'xpui\index.html'
+    return (Test-Path -LiteralPath $index) -and (Get-Content -LiteralPath $index -Raw) -match 'spicetifyWrapper\.js'
+}
+function Test-SpiceRecoveryDue($State) {
+    if (-not $State.RecoveryRetryAfter) { return $true }
+    return [DateTimeOffset]::UtcNow -ge [DateTimeOffset]::Parse($State.RecoveryRetryAfter)
+}
 function Get-SpiceRepairCommands([string]$Apps, [string]$PreviousFingerprint = '', [string]$CurrentFingerprint = '') {
     # Matches spicetify/cli/src/status/spotify: .spa files mean stock/mixed.
     if (@(Get-ChildItem -LiteralPath $Apps -Filter '*.spa' -File).Count -gt 0) { return @('backup', 'apply', '--no-restart') }

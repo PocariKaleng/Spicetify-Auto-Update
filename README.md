@@ -1,6 +1,6 @@
 # Spicetify Auto Update
 
-Auto updater Windows untuk Spicetify. Pembaruan berjalan saat Spotify ditutup, lalu menerapkan ulang tema dan extension setelah Spotify berubah.
+Auto updater Windows untuk Spicetify. Menerapkan ulang tema dan extension setelah Spotify berubah, dengan pilihan restart otomatis saat patch hilang.
 
 ## Pasang dengan satu command
 
@@ -13,6 +13,14 @@ irm https://raw.githubusercontent.com/PocariKaleng/Spicetify-Auto-Update/main/in
 Spotify desktop harus sudah terpasang dan pernah dibuka serta login. Jika Spicetify belum ada, tutup Spotify terlebih dahulu; installer mengambil CLI dari rilis resmi. Instalasi melalui Scoop, Chocolatey, atau WinGet perlu diperbarui melalui package manager masing-masing.
 
 Command ini bisa dijalankan ulang untuk memperbarui skrip updater. Satu task Windows bernama `Spicetify Auto Update` digunakan kembali.
+
+Agar tema pulih otomatis meskipun Spotify sedang terbuka setelah update, aktifkan restart otomatis:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/PocariKaleng/Spicetify-Auto-Update/main/install.ps1))) -AutoRestart
+```
+
+Spotify akan ditutup dan dibuka kembali ketika patch hilang; pemutaran musik bisa terhenti. Pilihan ini dipertahankan saat installer dijalankan ulang. Gunakan `-AutoRestart:$false` untuk kembali menunggu Spotify ditutup.
 
 ## Elaina Glass + foto sendiri
 
@@ -28,16 +36,16 @@ Gunakan foto JPG/JPEG. Pemasangan tema me-restart Spotify agar tampil langsung. 
 
 ## Cara kerjanya
 
-- Berjalan 2 menit setelah login Windows, kemudian setiap jam selama akun masih login.
-- Jika Spotify sedang terbuka, pemeriksaan ditunda sampai jadwal berikutnya.
+- Berjalan 2 menit setelah login Windows, kemudian setiap 5 menit selama akun masih login.
+- Secara default, Spotify yang terbuka ditunggu sampai ditutup. Dengan `-AutoRestart`, patch yang hilang memicu restart dan pemulihan; Spotify yang masih terpasang patch tetap dibiarkan berjalan.
 - Task memakai `wscript.exe` dan peluncur tersembunyi agar jendela PowerShell tidak berkedip ketika dimulai.
 - Mengecek rilis stabil resmi Spicetify maksimal sekali dalam 24 jam saat Spotify ditutup.
 - Memverifikasi checksum SHA-256 apabila disediakan oleh GitHub.
 - Mendeteksi perubahan Spotify, konfigurasi, berkas tema, dan wallpaper; menerapkan ulang patch jika diperlukan.
 - Perubahan berkas tema saja memakai `refresh`, sehingga Spotify tidak dikembalikan ke tampilan bawaan selama prosesnya.
-- Tidak membuka atau menutup Spotify selama proses otomatis.
-- Jika Spotify dibuka di tengah pemasangan patch penuh, log mencatat bahwa Spotify perlu dibuka ulang untuk memuat tema.
+- Jika Spotify dibuka di tengah pemasangan patch penuh, mode restart otomatis membuka ulang Spotify; mode default mencatat kebutuhan restart di log.
 - Error dicatat dan dicoba lagi pada jadwal berikutnya; tidak mengubah konfigurasi ke tema default.
+- Jika pemulihan otomatis gagal, Spotify tetap dibuka kembali dan restart berikutnya ditunda 30 menit.
 
 Updater mendukung instalasi desktop Windows yang dapat ditulis oleh akun pengguna. Pembaruan Spotify bisa membutuhkan rilis Spicetify baru; script tidak bisa membuat versi CLI yang belum tersedia menjadi kompatibel.
 
@@ -82,6 +90,6 @@ node --check ./themes/ElainaGlass/theme.js
 
 Tes memeriksa progres native pada stderr dan exit code Windows PowerShell 5.1, parsing konfigurasi, jeda 24 jam, pemilihan perintah repair untuk stock/mixed/applied Spotify, dan deteksi perubahan tema. GitHub Actions menjalankannya di Windows.
 
-Tema ini diperiksa pada Spotify desktop 1.2.95 dan 1.3.4 dengan Spicetify 2.45.3: wallpaper lokal, preset, aksen, reset, persistensi pengaturan, dan kontrol keyboard. Fitur Marketplace/extension tetap mengikuti dukungan versi Spicetify masing-masing.
+Tema ini diperiksa pada Spotify desktop 1.2.95, 1.3.4, dan 1.3.5 dengan Spicetify 2.45.3: wallpaper lokal, preset, aksen, reset, persistensi pengaturan, dan kontrol keyboard. Fitur Marketplace/extension tetap mengikuti dukungan versi Spicetify masing-masing.
 
 Referensi: [Spicetify resmi](https://spicetify.app/docs/getting-started), [struktur tema](https://spicetify.app/docs/development/themes), [deteksi status Spotify](https://github.com/spicetify/cli/blob/main/src/status/spotify/spotify.go).

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.8 — 2026-10-17
+
+- Check for missing Spotify patches every 5 minutes instead of hourly.
+- Add optional automatic Spotify restart and repair after Spotify updates, preserving the user's preference on reinstall.
+- Detect new stock archives even when the old patched app folder remains.
+- Preserve existing updater state when refreshing installed scripts.
+- Back off automatic restarts for 30 minutes after a failed recovery and reopen Spotify even on failure.
+
 ## 1.0.7 — 2026-10-13
 
 - Refresh theme-only changes in place instead of restoring and rebuilding Spotify resources.
