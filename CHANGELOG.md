@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.9 — 2026-10-19
+
+- Add restrained transparency to the toolbar, sidebars, player, sticky headers, menus, and appearance dialog.
+- Remove the opaque Connect surface and soften the current-device highlight.
+- Keep glass strength linked to appearance settings and reduced-transparency preferences.
+
 ## 1.0.8 — 2026-10-17
 
 - Check for missing Spotify patches every 5 minutes instead of hourly.

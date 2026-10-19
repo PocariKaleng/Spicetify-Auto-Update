@@ -28,6 +28,8 @@ Tema kaca gelap dengan aksen lavender, wallpaper lokal, dan tombol bintang **Ela
 
 Home memakai latar foto yang menyambung tanpa gradient hitam bawaan. Sudut panel seragam, pemutar sejajar dengan library, serta toolbar dan panel lyrics memakai warna yang selaras. Preset Balanced: foto 40%, panel 50%, blur 2 px.
 
+Toolbar, library, Connect, pemutar, dan header saat scroll memakai kaca gelap yang agak transparan. Kepekatannya mengikuti pengaturan panel agar preset Focus dan preferensi pengurangan transparansi tetap nyaman dibaca.
+
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/PocariKaleng/Spicetify-Auto-Update/main/install.ps1))) -WallpaperPath "$env:USERPROFILE\Pictures\wallpaper.jpg"
 ```

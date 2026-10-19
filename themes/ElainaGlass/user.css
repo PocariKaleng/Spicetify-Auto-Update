@@ -5,7 +5,9 @@
   --elaina-blur: 2px;
   --elaina-accent: #c4a5f5;
   --elaina-border: rgba(228, 218, 255, .12);
-  --elaina-side-fill: rgba(22, 18, 33, calc(var(--elaina-glass) + .32));
+  --elaina-side-fill: rgba(22, 18, 33, clamp(.46, calc(var(--elaina-glass) + .16), .96));
+  --elaina-chrome-fill: rgba(22, 18, 33, clamp(.50, calc(var(--elaina-glass) + .18), .96));
+  --elaina-overlay-fill: rgba(24, 20, 36, clamp(.64, calc(var(--elaina-glass) + .26), .98));
   --elaina-wallpaper: url("elaina-wallpaper.jpg");
 }
 body {
@@ -35,7 +37,8 @@ body::after {
 }
 .Root__globalNav {
   padding-inline: 12px;
-  background: #181522 !important;
+  background: var(--elaina-chrome-fill) !important;
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(228, 218, 255, .06);
 }
 /* Inset only the content panes, preserving Spotify's grid and player position. */
@@ -78,6 +81,7 @@ div:has(> .YourLibraryX) { background: transparent !important; }
 }
 .Root__top-container > div:has(> .LayoutResizer__inline-start) {
   background: var(--elaina-side-fill) !important;
+  backdrop-filter: blur(8px);
   border: 1px solid var(--elaina-border);
   border-radius: 16px !important;
   box-shadow: 0 8px 28px rgba(8, 5, 20, .18);
@@ -86,6 +90,18 @@ div:has(> .YourLibraryX) { background: transparent !important; }
   border-radius: inherit;
   overflow: hidden;
   background: transparent !important;
+}
+/* Connect paints its own solid surface inside the sidebar. */
+.Root__top-container > div:has(> .LayoutResizer__inline-start) aside:has([data-testid="device-picker-row-sidepanel"]),
+.Root__top-container > div:has(> .LayoutResizer__inline-start) aside:has([data-testid="device-picker-row-sidepanel"])::before {
+  background: transparent !important;
+}
+aside:has([data-testid="device-picker-row-sidepanel"]) [role="group"]:has(> [data-testid="device-picker-row-sidepanel"]) {
+  background: rgba(196, 165, 245, .12) !important;
+  box-shadow: inset 0 0 0 1px rgba(228, 218, 255, .10);
+}
+[data-testid="device-picker-row-sidepanel"]:hover {
+  background: rgba(196, 165, 245, .10) !important;
 }
 .Root__main-view .os-viewport,
 .main-view-container__scroll-node,
@@ -109,8 +125,11 @@ div:has(> .YourLibraryX) { background: transparent !important; }
 }
 /* Keep sticky controls readable when scrolling, without the 256px color block. */
 .main-view-container main > div:has(> [data-testid="home-page"]) > div:has(> .contentSpacing) > div:first-child {
-  background: rgba(24, 20, 36, .92) !important;
+  background: var(--elaina-overlay-fill) !important;
   backdrop-filter: blur(14px);
+}
+.main-view-container main > div:has(> [data-testid="home-page"]) > div:has(> .contentSpacing) > div:first-child::after {
+  background: transparent !important;
 }
 .Root__top-container > div:has(> [data-testid="now-playing-bar"]) {
   background: transparent !important;
@@ -120,13 +139,13 @@ div:has(> .YourLibraryX) { background: transparent !important; }
   padding: 8px 12px !important;
   border: 1px solid var(--elaina-border);
   border-radius: 16px;
-  background: rgba(22, 18, 33, .94) !important;
+  background: var(--elaina-chrome-fill) !important;
   backdrop-filter: blur(8px);
   box-shadow: 0 6px 24px rgba(8, 5, 20, .18), inset 0 1px rgba(255,255,255,.035);
 }
 .main-topBar-searchBar,
 .Root__globalNav input {
-  background: rgba(24, 19, 39, .78) !important;
+  background: rgba(24, 19, 39, .52) !important;
   border: 1px solid var(--elaina-border) !important;
   backdrop-filter: blur(14px);
 }
@@ -136,7 +155,7 @@ div:has(> .YourLibraryX) { background: transparent !important; }
   filter: saturate(.78) brightness(.78);
 }
 [data-testid="lyrics-npv-section"] {
-  background: rgba(37, 29, 52, .88) !important;
+  background: var(--elaina-overlay-fill) !important;
   border: 1px solid var(--elaina-border);
   border-radius: 12px !important;
   --lyrics-color-active: #f5f3ff !important;
@@ -157,7 +176,7 @@ div:has(> .YourLibraryX) { background: transparent !important; }
   background: rgba(196, 165, 245, .13) !important;
 }
 .main-trackList-trackListRow.main-trackList-selected { background: rgba(196, 165, 245, .19) !important; }
-.main-trackList-trackListHeader { background: rgba(24, 19, 39, .92) !important; backdrop-filter: blur(16px); }
+.main-trackList-trackListHeader { background: var(--elaina-overlay-fill) !important; backdrop-filter: blur(16px); }
 .main-card-card { background: rgba(26, 21, 40, .36) !important; border-radius: 13px; }
 .main-card-card:hover { background: rgba(70, 53, 96, .56) !important; }
 .main-cardImage-imageWrapper,
@@ -176,7 +195,7 @@ div:has(> .YourLibraryX) { background: transparent !important; }
 .main-playbackBar-slider { --fg-color: var(--elaina-accent); }
 .main-contextMenu-menu,
 .main-userWidget-dropDownMenu,
-.main-dropDown-dropDown { background: #272035 !important; border: 1px solid var(--elaina-border); }
+.main-dropDown-dropDown { background: var(--elaina-overlay-fill) !important; backdrop-filter: blur(16px); border: 1px solid var(--elaina-border); }
 button:focus-visible,
 a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-offset: 3px; }
 #elaina-studio-button {
@@ -218,7 +237,8 @@ a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-of
   max-height: 82vh;
   overflow-y: auto;
   padding: 24px;
-  background: #211a2e;
+  background: var(--elaina-overlay-fill);
+  backdrop-filter: blur(16px);
   color: #f5f3ff;
   border: 1px solid rgba(216,191,255,.25);
   border-radius: 18px;
