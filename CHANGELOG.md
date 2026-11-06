@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.12 — 2026-11-06
+
+- Add a short fade/slide when search suggestions open, with a matching glass surface and focus transition.
+- Animate Library content when expanding from the icon rail or opening its wider view, using container queries without observers or width animation.
+- Preserve native search positioning, keyboard controls, lightweight mode, and reduced-motion preferences.
+
 ## 1.0.11 — 2026-11-06
 
 - Add restrained 120–200ms interactions for buttons, cards, page entrances, and sidebar panels.

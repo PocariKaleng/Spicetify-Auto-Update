@@ -59,7 +59,7 @@ body::after {
 }
 /* Inset only the content panes, preserving Spotify's grid and player position. */
 .Root__top-container > div:has(> .main-view-container),
-.Root__top-container > div:has(> .LayoutResizer__inline-end),
+.Root__top-container > div:has(> nav),
 .Root__top-container > div:has(> .LayoutResizer__inline-start) {
   margin-top: 12px;
   min-height: 0;
@@ -82,7 +82,9 @@ body::after {
   border: 1px solid var(--elaina-border);
   border-radius: 16px;
 }
-.Root__top-container > div:has(> .LayoutResizer__inline-end) {
+.Root__top-container > div:has(> nav) {
+  container-name: elaina-library;
+  container-type: inline-size;
   background: var(--elaina-side-fill) !important;
   backdrop-filter: var(--elaina-panel-backdrop);
   border: 1px solid var(--elaina-border);
@@ -167,6 +169,20 @@ aside:has([data-testid="device-picker-row-sidepanel"]) [role="group"]:has(> [dat
 }
 .main-topBar-searchBar:focus-within { border-color: var(--elaina-accent) !important; }
 .Root__globalNav input:focus { border-color: var(--elaina-accent) !important; }
+.Root__globalNav input[aria-controls="search-dropdown"] {
+  transition: border-color var(--elaina-motion-fast) ease-out,
+    background-color var(--elaina-motion-fast) ease-out;
+}
+/* Keep the native search anchor and scrollbar geometry intact. */
+#search-dropdown > [data-overlayscrollbars] {
+  background: var(--elaina-overlay-fill) !important;
+  backdrop-filter: var(--elaina-popup-backdrop);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px var(--elaina-border);
+}
+#search-dropdown [role="option"] {
+  transition: background-color var(--elaina-motion-fast) ease-out;
+}
 .Root__top-container > div:has(> .LayoutResizer__inline-start) video {
   filter: saturate(.78) brightness(.78);
 }
@@ -300,7 +316,32 @@ a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-of
 }
 @keyframes elaina-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes elaina-backdrop-out { from { opacity: var(--elaina-backdrop-start, 1); } to { opacity: 0; } }
+@keyframes elaina-search-in {
+  from { opacity: .6; translate: 0 -4px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes elaina-library-in {
+  from { opacity: .75; translate: -6px 0; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes elaina-library-wide-in {
+  from { opacity: .8; translate: -4px 0; }
+  to { opacity: 1; translate: 0 0; }
+}
 @media (prefers-reduced-motion: no-preference) {
+  #search-dropdown {
+    animation: elaina-search-in var(--elaina-motion-enter) var(--elaina-motion-ease);
+  }
+  @container elaina-library (min-width: 160px) {
+    .Root__top-container > div:has(> nav) > nav {
+      animation: elaina-library-in var(--elaina-motion-enter) var(--elaina-motion-ease);
+    }
+  }
+  @container elaina-library (min-width: 600px) {
+    .Root__top-container > div:has(> nav) > nav {
+      animation-name: elaina-library-wide-in;
+    }
+  }
   .elaina-dialog[open]::backdrop { animation: elaina-backdrop-in var(--elaina-motion-enter) ease-out; }
   .elaina-dialog.elaina-closing::backdrop { animation: elaina-backdrop-out var(--elaina-motion-exit) ease-in forwards; }
   .main-view-container :is([data-testid="home-page"], [data-testid="playlist-page"], [data-testid="album-page"], [data-testid="artist-page"]) {
