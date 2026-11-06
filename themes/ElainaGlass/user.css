@@ -13,6 +13,10 @@
   --elaina-control-backdrop: blur(14px);
   --elaina-popup-backdrop: blur(16px);
   --elaina-modal-backdrop: blur(3px);
+  --elaina-motion-fast: 150ms;
+  --elaina-motion-enter: 200ms;
+  --elaina-motion-exit: 120ms;
+  --elaina-motion-ease: cubic-bezier(.2, .8, .2, 1);
   --elaina-wallpaper: url("elaina-wallpaper.jpg");
 }
 :root.elaina-lite {
@@ -269,6 +273,51 @@ a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-of
 }
 :root.elaina-lite .main-view-container :is(h1, h2) { text-shadow: none; }
 :root.elaina-lite .Root__top-container > div:has(> .LayoutResizer__inline-start) video { filter: none; }
+/* Short interactions only; no permanent compositor hints or scroll observers. */
+#elaina-studio-button,
+.elaina-settings button,
+.elaina-dialog-close,
+.Root__globalNav button,
+[data-testid="control-button-playpause"] {
+  transition: transform var(--elaina-motion-fast) var(--elaina-motion-ease),
+    background-color var(--elaina-motion-fast) ease-out,
+    color var(--elaina-motion-fast) ease-out,
+    border-color var(--elaina-motion-fast) ease-out;
+}
+.main-view-container :is(.main-card-card, [data-encore-id="card"]) {
+  transition: transform var(--elaina-motion-fast) var(--elaina-motion-ease),
+    background-color var(--elaina-motion-fast) ease-out;
+}
+.main-trackList-trackListRow,
+.main-yourLibraryX-libraryRootlist [role="row"],
+[data-testid="device-picker-row-sidepanel"] {
+  transition: background-color var(--elaina-motion-fast) ease-out;
+}
+@keyframes elaina-page-in { from { opacity: .88; } to { opacity: 1; } }
+@keyframes elaina-panel-in {
+  from { opacity: .85; transform: translateX(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes elaina-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes elaina-backdrop-out { from { opacity: var(--elaina-backdrop-start, 1); } to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .elaina-dialog[open]::backdrop { animation: elaina-backdrop-in var(--elaina-motion-enter) ease-out; }
+  .elaina-dialog.elaina-closing::backdrop { animation: elaina-backdrop-out var(--elaina-motion-exit) ease-in forwards; }
+  .main-view-container :is([data-testid="home-page"], [data-testid="playlist-page"], [data-testid="album-page"], [data-testid="artist-page"]) {
+    animation: elaina-page-in var(--elaina-motion-enter) ease-out;
+  }
+  .Root__top-container > div:has(> .LayoutResizer__inline-start) aside {
+    animation: elaina-panel-in var(--elaina-motion-enter) var(--elaina-motion-ease);
+  }
+  :is(#elaina-studio-button, .elaina-settings button, .elaina-dialog-close, [data-testid="control-button-playpause"]):not(:disabled):active {
+    transform: scale(.97);
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .main-view-container :is(.main-card-card, [data-encore-id="card"]):hover { transform: translateY(-2px); }
+  :is(#elaina-studio-button, .elaina-settings button, .elaina-dialog-close):not(:disabled):hover { transform: translateY(-1px); }
+  :is(#elaina-studio-button, .elaina-settings button, .elaina-dialog-close):not(:disabled):active { transform: scale(.97); }
+}
 @media (max-width: 1000px) {
   .Root__main-view { border-radius: 12px !important; }
   .main-nowPlayingBar-container { padding: 8px !important; }
@@ -284,5 +333,5 @@ a:focus-visible { outline: 2px solid var(--elaina-accent) !important; outline-of
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  #elaina-studio-button { transition: none; }
+  :root { --elaina-motion-fast: 0ms; --elaina-motion-enter: 0ms; --elaina-motion-exit: 0ms; }
 }

@@ -24,6 +24,7 @@
   }
   apply();
   function openSettings() {
+    if (document.querySelector('.elaina-dialog[open]')) return;
     const panel = document.createElement('div');
     panel.className = 'elaina-settings';
     panel.innerHTML = `
@@ -88,12 +89,46 @@
     close.className = 'elaina-dialog-close';
     close.textContent = '×';
     close.setAttribute('aria-label', 'Tutup pengaturan');
-    close.onclick = () => dialog.close();
-    dialog.addEventListener('close', () => dialog.remove(), { once: true });
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    let animation;
+    let closing = false;
+    function requestClose() {
+      if (closing) return;
+      closing = true;
+      if (reducedMotion.matches) { dialog.close(); return; }
+      const style = getComputedStyle(dialog);
+      const start = { opacity: style.opacity, transform: style.transform };
+      const backdropOpacity = getComputedStyle(dialog, '::backdrop').opacity;
+      animation?.cancel();
+      dialog.style.setProperty('--elaina-backdrop-start', backdropOpacity);
+      dialog.classList.add('elaina-closing');
+      animation = dialog.animate(
+        [start, { opacity: 0, transform: 'translateY(4px) scale(.99)' }],
+        { duration: 120, easing: 'ease-in', fill: 'forwards' }
+      );
+      animation.finished.catch(() => {}).then(() => {
+        if (dialog.open) dialog.close();
+      });
+    }
+    const stopMotion = () => { if (reducedMotion.matches) animation?.cancel(); };
+    close.onclick = requestClose;
+    dialog.addEventListener('cancel', event => { event.preventDefault(); requestClose(); });
+    reducedMotion.addEventListener('change', stopMotion);
+    dialog.addEventListener('close', () => {
+      animation?.cancel();
+      reducedMotion.removeEventListener('change', stopMotion);
+      dialog.remove();
+    }, { once: true });
     header.append(title, close);
     dialog.append(header, panel);
     document.body.append(dialog);
     dialog.showModal();
+    if (!reducedMotion.matches) {
+      animation = dialog.animate(
+        [{ opacity: 0, transform: 'translateY(6px) scale(.99)' }, { opacity: 1, transform: 'none' }],
+        { duration: 200, easing: 'cubic-bezier(.2, .8, .2, 1)' }
+      );
+    }
   }
   function mount(attempt = 0) {
     const container = document.querySelector('.main-globalNav-historyButtonsWrapper') || document.querySelector('.Root__globalNav');

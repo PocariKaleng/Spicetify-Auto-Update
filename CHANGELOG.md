@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.11 — 2026-11-06
+
+- Add restrained 120–200ms interactions for buttons, cards, page entrances, and sidebar panels.
+- Animate appearance-dialog entry and exit with native Web Animations, preserving Escape and focus restoration.
+- Respect reduced-motion preferences, including changes while the dialog is open; keep lightweight mode free of backdrop blur.
+
 ## 1.0.10 — 2026-11-06
 
 - Enable a saved lightweight appearance mode that removes backdrop blur, decorative shadows, and the theme's video filter while keeping wallpaper and transparency.
