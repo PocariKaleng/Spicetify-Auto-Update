@@ -24,11 +24,23 @@ Spotify akan ditutup dan dibuka kembali ketika patch hilang; pemutaran musik bis
 
 ## Elaina Glass + foto sendiri
 
+**Mode ringan** aktif secara default. Wallpaper dan panel transparan tetap tampil; blur backdrop, filter video dari tema, dan bayangan besar dimatikan. Pilihan ini tersimpan. Untuk mengaktifkan efek kaca penuh, buka tombol bintang lalu matikan **Mode ringan**; slider blur kembali tersedia.
+
+Perbarui tema yang sudah terpasang, beserta updater, tanpa mengganti wallpaper lokal atau palet warna:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/PocariKaleng/Spicetify-Auto-Update/main/install.ps1))) -UpdateTheme
+```
+
+Pemasangan/perbaruan tema juga menonaktifkan konfigurator sidebar lama Spicetify untuk menghindari polling pada layout baru. Konfigurasi sebelumnya disimpan dalam backup `config-before-theme-*.ini`.
+
 Tema kaca gelap dengan aksen lavender, wallpaper lokal, dan tombol bintang **Elaina Glass** di kiri atas Spotify. Tombolnya menyediakan preset Portrait / Balanced / Focus, kegelapan foto, kepekatan panel, blur, aksen Lavender / Moonlight / Rose, dan daftar lagu rapat. Pengaturan tampilan tersimpan otomatis.
 
-Home memakai latar foto yang menyambung tanpa gradient hitam bawaan. Sudut panel seragam, pemutar sejajar dengan library, serta toolbar dan panel lyrics memakai warna yang selaras. Preset Balanced: foto 40%, panel 50%, blur 2 px.
+Home memakai latar foto yang menyambung tanpa gradient hitam bawaan. Sudut panel seragam, pemutar sejajar dengan library, serta toolbar dan panel lyrics memakai warna yang selaras. Preset Balanced: foto 40%, panel 50%, blur 2 px saat Mode ringan dimatikan.
 
 Toolbar, library, Connect, pemutar, dan header saat scroll memakai kaca gelap yang agak transparan. Kepekatannya mengikuti pengaturan panel agar preset Focus dan preferensi pengurangan transparansi tetap nyaman dibaca.
+
+Pengurangan efek tema membantu mengurangi pekerjaan rendering tambahan. Pemakaian CPU/RAM keseluruhan tetap bergantung pada Spotify, konten yang dibuka, dan perangkat; mode ringan tidak mematikan animasi atau video bawaan Spotify.
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/PocariKaleng/Spicetify-Auto-Update/main/install.ps1))) -WallpaperPath "$env:USERPROFILE\Pictures\wallpaper.jpg"
@@ -42,6 +54,7 @@ Gunakan foto JPG/JPEG. Pemasangan tema me-restart Spotify agar tampil langsung. 
 - Secara default, Spotify yang terbuka ditunggu sampai ditutup. Dengan `-AutoRestart`, patch yang hilang memicu restart dan pemulihan; Spotify yang masih terpasang patch tetap dibiarkan berjalan.
 - Task memakai `wscript.exe` dan peluncur tersembunyi agar jendela PowerShell tidak berkedip ketika dimulai.
 - Mengecek rilis stabil resmi Spicetify maksimal sekali dalam 24 jam saat Spotify ditutup.
+- Memakai ulang versi CLI yang sudah dibaca dalam satu pengecekan dan hanya menulis state saat ada perubahan.
 - Memverifikasi checksum SHA-256 apabila disediakan oleh GitHub.
 - Mendeteksi perubahan Spotify, konfigurasi, berkas tema, dan wallpaper; menerapkan ulang patch jika diperlukan.
 - Perubahan berkas tema saja memakai `refresh`, sehingga Spotify tidak dikembalikan ke tampilan bawaan selama prosesnya.

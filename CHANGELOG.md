@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.10 — 2026-11-06
+
+- Enable a saved lightweight appearance mode that removes backdrop blur, decorative shadows, and the theme's video filter while keeping wallpaper and transparency.
+- Restrict pane selectors to direct children to reduce broad descendant matching.
+- Add `-UpdateTheme` to refresh an existing theme while preserving its local wallpaper, palette, and appearance settings.
+- Disable the legacy sidebar configurator when installing/updating the theme, and record the applied fingerprint to avoid redundant repairs.
+- Reuse the checked CLI version within each updater run and skip rewriting unchanged state.
+
 ## 1.0.9 — 2026-10-19
 
 - Add restrained transparency to the toolbar, sidebars, player, sticky headers, menus, and appearance dialog.

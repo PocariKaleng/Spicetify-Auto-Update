@@ -1,6 +1,6 @@
 (() => {
   const key = 'elaina-glass-settings-v1';
-  const defaults = { dim: 40, glass: 50, blur: 2, compact: false, accent: '#c4a5f5', styleRevision: 2 };
+  const defaults = { dim: 40, glass: 50, blur: 2, lite: true, compact: false, accent: '#c4a5f5', styleRevision: 2 };
   let stored = {};
   try { stored = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
   let settings = { ...defaults, ...stored };
@@ -19,6 +19,7 @@
     document.documentElement.style.setProperty('--elaina-blur', `${settings.blur}px`);
     document.documentElement.style.setProperty('--elaina-accent', settings.accent);
     document.documentElement.classList.toggle('elaina-compact', !!settings.compact);
+    document.documentElement.classList.toggle('elaina-lite', !!settings.lite);
     try { localStorage.setItem(key, JSON.stringify(settings)); } catch {}
   }
   apply();
@@ -32,6 +33,8 @@
         <button data-preset="balanced">Balanced</button>
         <button data-preset="focus">Focus</button>
       </div>
+      <label style="display:flex;align-items:center"><input id="elaina-lite" type="checkbox"> Mode ringan</label>
+      <p class="elaina-lite-help">Wallpaper dan transparansi tetap tampil. Blur, filter video, dan bayangan berat dimatikan.</p>
       <label>Gelapkan foto <output id="elaina-dim-value"></output><input id="elaina-dim" type="range" min="20" max="75"></label>
       <label>Kepekatan panel <output id="elaina-glass-value"></output><input id="elaina-glass" type="range" min="32" max="80"></label>
       <label>Blur panel <output id="elaina-blur-value"></output><input id="elaina-blur" type="range" min="0" max="14"></label>
@@ -47,12 +50,16 @@
         panel.querySelector(`#elaina-${name}-value`).textContent = `${settings[name]}${name === 'blur' ? ' px' : '%'}`;
       }
       panel.querySelector('#elaina-compact').checked = !!settings.compact;
+      panel.querySelector('#elaina-lite').checked = !!settings.lite;
+      panel.querySelector('#elaina-blur').disabled = !!settings.lite;
+      if (settings.lite) panel.querySelector('#elaina-blur-value').textContent = 'Nonaktif';
       panel.querySelectorAll('[data-accent]').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.accent === settings.accent)));
     }
     panel.addEventListener('input', event => {
       const name = event.target.id.replace('elaina-', '');
       if (['dim', 'glass', 'blur'].includes(name)) settings[name] = Number(event.target.value);
       if (name === 'compact') settings.compact = event.target.checked;
+      if (name === 'lite') settings.lite = event.target.checked;
       apply(); sync();
     });
     panel.addEventListener('click', event => {

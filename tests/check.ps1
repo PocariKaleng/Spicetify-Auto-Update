@@ -80,6 +80,9 @@ version = 1.2.95.453.gexample
     $cssPath = Join-Path $themeRoot 'user.css'
     Set-Content -LiteralPath $cssPath -Value 'body { background: red; }'
     $first = Get-SpiceFingerprint $fakeExe $context
+    function Get-SpiceVersion { throw 'A known CLI version must not launch another version lookup.' }
+    Assert-True ((Get-SpiceFingerprint $fakeExe $context '2.45.3') -eq $first) 'Reusing the checked CLI version must preserve fingerprint contents.'
+    function Get-SpiceVersion { return '2.45.3' }
     Set-Content -LiteralPath $stockFile -Value 'new Spotify resources'
     Assert-True ((Get-SpiceFingerprint $fakeExe $context) -ne $first) 'Stock resource changes must trigger repair.'
     $second = Get-SpiceFingerprint $fakeExe $context

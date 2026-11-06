@@ -1,7 +1,8 @@
 param(
     [string]$WallpaperPath,
     [string]$SourceDirectory = $PSScriptRoot,
-    [switch]$AutoRestart
+    [switch]$AutoRestart,
+    [switch]$UpdateTheme
 )
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -35,19 +36,29 @@ if (-not (Test-Path -LiteralPath $spiceExe)) {
     & $spiceExe | Out-Host
 }
 $context = Get-SpiceContext $spiceExe
-if ($WallpaperPath) {
+if ($WallpaperPath -or $UpdateTheme) {
+    if ($UpdateTheme -and -not $WallpaperPath -and $context.Config.Setting.current_theme -ne 'ElainaGlass') {
+        throw 'UpdateTheme requires the active ElainaGlass theme, or a JPG supplied with WallpaperPath.'
+    }
     $themeRoot = Join-Path (Split-Path $context.ConfigPath) 'Themes\ElainaGlass'
     New-Item -ItemType Directory -Path (Join-Path $themeRoot 'assets') -Force | Out-Null
     $backupPath = Join-Path $runtimeRoot ('config-before-theme-{0:yyyyMMdd-HHmmss}.ini' -f (Get-Date))
     Copy-Item -LiteralPath $context.ConfigPath -Destination $backupPath
-    foreach ($file in @('color.ini', 'user.css', 'theme.js')) { Save-RepoFile "themes/ElainaGlass/$file" (Join-Path $themeRoot $file) }
-    Copy-Item -LiteralPath $WallpaperPath -Destination (Join-Path $themeRoot 'assets\elaina-wallpaper.jpg') -Force
-    & $spiceExe config current_theme ElainaGlass color_scheme Lavender inject_css 1 inject_theme_js 1 replace_colors 1 overwrite_assets 1 | Out-Host
-    if ($LASTEXITCODE -ne 0) { throw 'Theme configuration failed.' }
-    $index = Join-Path $context.Apps 'xpui\index.html'
-    if ((Test-Path -LiteralPath $index) -and (Get-Content -LiteralPath $index -Raw) -match 'spicetifyWrapper\.js') { & $spiceExe apply | Out-Host }
+    foreach ($file in @('user.css', 'theme.js')) { Save-RepoFile "themes/ElainaGlass/$file" (Join-Path $themeRoot $file) }
+    if ($WallpaperPath -or -not (Test-Path -LiteralPath (Join-Path $themeRoot 'color.ini'))) { Save-RepoFile 'themes/ElainaGlass/color.ini' (Join-Path $themeRoot 'color.ini') }
+    if ($WallpaperPath) {
+        $destination = Join-Path $themeRoot 'assets\elaina-wallpaper.jpg'
+        if ([IO.Path]::GetFullPath($WallpaperPath) -ne [IO.Path]::GetFullPath($destination)) { Copy-Item -LiteralPath $WallpaperPath -Destination $destination -Force }
+        & $spiceExe config current_theme ElainaGlass color_scheme Lavender inject_css 1 inject_theme_js 1 replace_colors 1 overwrite_assets 1 | Out-Host
+        if ($LASTEXITCODE -ne 0) { throw 'Theme configuration failed.' }
+    }
+    # This legacy configurator polls for .Root__nav-bar on newer Spotify layouts.
+    & $spiceExe config sidebar_config 0 | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Lightweight sidebar configuration failed.' }
+    if (Test-SpicePatchApplied $context.Apps) { & $spiceExe apply | Out-Host }
     else { & $spiceExe backup apply | Out-Host }
     if ($LASTEXITCODE -ne 0) { throw 'Theme application failed.' }
+    if (-not (Test-SpicePatchApplied $context.Apps)) { throw 'Theme injection could not be verified.' }
 }
 $settingsPath = Join-Path $runtimeRoot 'settings.json'
 $autoRestartEnabled = [bool]$AutoRestart
@@ -59,6 +70,14 @@ if (-not $PSBoundParameters.ContainsKey('AutoRestart') -and (Test-Path -LiteralP
 $statePath = Join-Path $runtimeRoot 'state.json'
 if (-not (Test-Path -LiteralPath $statePath)) {
     @{ LastReleaseCheck = ''; AppliedFingerprint = '' } | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+}
+if ($WallpaperPath -or $UpdateTheme) {
+    $savedState = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+    @{
+        LastReleaseCheck = $savedState.LastReleaseCheck
+        AppliedFingerprint = Get-SpiceFingerprint $spiceExe (Get-SpiceContext $spiceExe)
+        RecoveryRetryAfter = ''
+    } | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
 }
 $userId = [Security.Principal.WindowsIdentity]::GetCurrent().Name
 $action = New-ScheduledTaskAction -Execute (Join-Path $env:SystemRoot 'System32\wscript.exe') -Argument ('//B //Nologo "{0}"' -f (Join-Path $runtimeRoot 'run-hidden.vbs')) -WorkingDirectory $runtimeRoot

@@ -34,9 +34,9 @@ function Get-SpiceContext([string]$Executable) {
     if (-not $spotifyRoot -or -not (Test-Path -LiteralPath (Join-Path $spotifyRoot 'Spotify.exe'))) { throw 'Configured Spotify desktop installation was not found.' }
     return @{ ConfigPath = $configPath; Config = $ini; SpotifyRoot = $spotifyRoot; Apps = (Join-Path $spotifyRoot 'Apps') }
 }
-function Get-SpiceFingerprint([string]$Executable, $Context) {
+function Get-SpiceFingerprint([string]$Executable, $Context, [string]$KnownVersion = '') {
     $parts = [System.Collections.Generic.List[string]]::new()
-    $parts.Add((Get-SpiceVersion $Executable))
+    $parts.Add($(if ($KnownVersion) { $KnownVersion } else { Get-SpiceVersion $Executable }))
     $parts.Add((Get-Item -LiteralPath (Join-Path $Context.SpotifyRoot 'Spotify.exe')).VersionInfo.ProductVersion)
     $files = @($Context.ConfigPath, (Join-Path $Context.Apps 'xpui\index.html'))
     $files += @(Get-ChildItem -LiteralPath $Context.Apps -Filter '*.spa' -File | Sort-Object Name | ForEach-Object { $_.FullName })

@@ -23,6 +23,8 @@ try {
     $spiceExe = $settings.SpicetifyExecutable
     $context = Get-SpiceContext $spiceExe
     $state = @{ LastReleaseCheck = ''; AppliedFingerprint = ''; RecoveryRetryAfter = '' }
+    $stateChanged = -not (Test-Path -LiteralPath $statePath)
+    $currentVersion = $null
     if (Test-Path -LiteralPath $statePath) {
         $saved = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
         $state.LastReleaseCheck = $saved.LastReleaseCheck
@@ -44,11 +46,14 @@ try {
     if (Test-SpiceReleaseDue $state ([bool]$CheckNow)) {
         $release = Invoke-RestMethod -Uri 'https://api.github.com/repos/spicetify/cli/releases/latest' -TimeoutSec 60
         $before = Get-SpiceVersion $spiceExe
+        $currentVersion = $before
         if ([version]$release.tag_name.TrimStart('v') -gt [version]$before) {
             Install-SpiceRelease $spiceExe $release $PSScriptRoot
-            Write-UpdateLog "Updated Spicetify from $before to $(Get-SpiceVersion $spiceExe)."
+            $currentVersion = Get-SpiceVersion $spiceExe
+            Write-UpdateLog "Updated Spicetify from $before to $currentVersion."
         }
         $state.LastReleaseCheck = [DateTimeOffset]::UtcNow.ToString('o')
+        $stateChanged = $true
     }
     if (Get-Process -Name Spotify -ErrorAction SilentlyContinue) {
         if ($autoRestart -and -not (Test-SpicePatchApplied $context.Apps)) {
@@ -58,7 +63,8 @@ try {
             exit 0
         }
     }
-    $fingerprint = Get-SpiceFingerprint $spiceExe $context
+    if (-not $currentVersion) { $currentVersion = Get-SpiceVersion $spiceExe }
+    $fingerprint = Get-SpiceFingerprint $spiceExe $context $currentVersion
     $isPatched = Test-SpicePatchApplied $context.Apps
     if ($fingerprint -ne $state.AppliedFingerprint -or -not $isPatched) {
         $commands = if ($isPatched) { Get-SpiceRepairCommands $context.Apps $state.AppliedFingerprint $fingerprint }
@@ -77,8 +83,9 @@ try {
         if ($run.ExitCode -ne 0) { throw "Spicetify repair exited with code $($run.ExitCode)." }
         if (-not (Test-SpicePatchApplied $context.Apps)) { throw 'Spicetify injection could not be verified.' }
         $context = Get-SpiceContext $spiceExe
-        $state.AppliedFingerprint = Get-SpiceFingerprint $spiceExe $context
+        $state.AppliedFingerprint = Get-SpiceFingerprint $spiceExe $context $currentVersion
         $state.RecoveryRetryAfter = ''
+        $stateChanged = $true
         Write-UpdateLog 'Verified: patch reapplied; existing theme and local wallpaper preserved.'
         if (Get-Process -Name Spotify -ErrorAction SilentlyContinue) {
             if ($autoRestart) {
@@ -87,8 +94,8 @@ try {
                 Write-UpdateLog 'Restart needed: Spotify opened during repair. Reopen Spotify to load the patched files.'
             }
         }
-    } else { Write-UpdateLog "Healthy: Spicetify $(Get-SpiceVersion $spiceExe); no changes needed." }
-    $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+    } else { Write-UpdateLog "Healthy: Spicetify $currentVersion; no changes needed." }
+    if ($stateChanged) { $state | ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8 }
     exit 0
 } catch {
     $errorMessage = if ($_.Exception.Message) { $_.Exception.Message } else { ($_ | Out-String).Trim() }
